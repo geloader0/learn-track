@@ -3,6 +3,7 @@ import { Users, GraduationCap, TrendingUp, AlertTriangle, Settings, FileText } f
 import { NavigationItem } from '../Dashboard';
 import { StatCard } from '../common/StatCard';
 import { SystemPerformanceChart } from '../charts/SystemPerformanceChart';
+import { AdminUserManagement } from '../pages/AdminUserManagement';
 
 interface AdminDashboardProps {
   activeTab: NavigationItem;
@@ -130,6 +131,10 @@ export function AdminDashboard({ activeTab }: AdminDashboardProps) {
         </div>
       </div>
     );
+  }
+
+  if (activeTab === 'users') {
+    return <AdminUserManagement />;
   }
 
   return (

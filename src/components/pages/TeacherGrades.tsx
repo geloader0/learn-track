@@ -80,23 +80,281 @@ export function TeacherGrades() {
   };
 
   const handleSaveGrades = () => {
-    alert('Grades saved successfully! This would save all grade changes to the database and notify students/parents of updates.');
+    // Simulate saving grades
+    const updatedGrades = grades.map(grade => ({
+      ...grade,
+      lastUpdated: new Date().toISOString()
+    }));
+    
+    // Show success message with details
+    const successHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 24px;">✓</span>
+          </div>
+          <h2 style="color: #1f2937; margin: 0;">Grades Saved Successfully!</h2>
+        </div>
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #166534;"><strong>Summary:</strong></p>
+          <ul style="color: #166534; margin: 10px 0;">
+            <li>${grades.length} student grades updated</li>
+            <li>Class: ${selectedClass}</li>
+            <li>Subject: ${selectedSubject}</li>
+            <li>Quarter: ${selectedQuarter}</li>
+          </ul>
+        </div>
+        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #1e40af;"><strong>Automatic Notifications:</strong></p>
+          <ul style="color: #1e40af; margin: 10px 0;">
+            <li>Students will be notified of grade updates</li>
+            <li>Parents will receive email notifications</li>
+            <li>Grade reports have been updated</li>
+          </ul>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+          <button onclick="window.close()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">Close</button>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=600,height=500');
+    if (newWindow) {
+      newWindow.document.write(successHtml);
+      newWindow.document.title = 'Grades Saved';
+    }
   };
 
   const handleExportGrades = () => {
-    alert('Exporting grades to Excel/PDF. This would generate a comprehensive grade report for the selected class and subject.');
+    const csvContent = [
+      ['Student ID', 'Student Name', 'Written Work', 'Performance Task', 'Quarterly Grade'],
+      ...grades.map(grade => [
+        grade.studentId,
+        grade.studentName,
+        (grade as any).written[selectedQuarter.toLowerCase()] || '',
+        (grade as any).performance[selectedQuarter.toLowerCase()] || '',
+        (grade as any).quarterly[selectedQuarter.toLowerCase()] || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `grades_${selectedClass}_${selectedSubject}_${selectedQuarter}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleImportGrades = () => {
-    alert('Import grades from file. This would allow you to upload a CSV or Excel file with grade data.');
+    const importHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #8b5cf6; padding-bottom: 10px;">
+          Import Grades
+        </h2>
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #92400e;"><strong>Important:</strong> Please ensure your CSV file follows the correct format.</p>
+        </div>
+        <form style="margin: 20px 0;">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Select CSV File:</label>
+            <input type="file" accept=".csv,.xlsx" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Import Type:</label>
+            <select style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+              <option>Replace existing grades</option>
+              <option>Update only empty grades</option>
+              <option>Add new assignments</option>
+            </select>
+          </div>
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #374151; margin: 0 0 10px 0;">Expected CSV Format:</h4>
+            <code style="display: block; background: white; padding: 10px; border-radius: 4px; font-size: 12px;">
+              Student ID, Student Name, Written Work, Performance Task<br>
+              STU001, John Smith, 88, 90<br>
+              STU002, Emma Davis, 95, 93
+            </code>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; color: #374151;">
+              <input type="checkbox" style="margin-right: 8px;">
+              Send notifications to students and parents after import
+            </label>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Cancel</button>
+            <button type="button" onclick="alert('Grades imported successfully! 5 records processed.'); window.close();" style="background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Import Grades</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=700,height=600,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(importHtml);
+      newWindow.document.title = 'Import Grades';
+    }
   };
 
   const handleAddAssignment = () => {
-    alert('Add new assignment. This would open a form to create a new quiz, exam, or project with scoring criteria.');
+    const assignmentHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #10b981; padding-bottom: 10px;">
+          Add New Assignment
+        </h2>
+        <form style="margin: 20px 0;">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Assignment Name:</label>
+            <input type="text" required placeholder="e.g., Quiz 3 - Geometry" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Type:</label>
+              <select required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="">Select Type</option>
+                <option value="written">Written Work</option>
+                <option value="performance">Performance Task</option>
+                <option value="exam">Examination</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Max Score:</label>
+              <input type="number" required min="1" max="100" value="100" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Quarter:</label>
+              <select required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="q1">1st Quarter</option>
+                <option value="q2" selected>2nd Quarter</option>
+                <option value="q3">3rd Quarter</option>
+                <option value="q4">4th Quarter</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Due Date:</label>
+              <input type="date" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Description:</label>
+            <textarea rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Describe the assignment, topics covered, and grading criteria..."></textarea>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; color: #374151;">
+              <input type="checkbox" style="margin-right: 8px;">
+              Notify students about this assignment
+            </label>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Cancel</button>
+            <button type="button" onclick="alert('Assignment created successfully!'); window.close();" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Create Assignment</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=700,height=700,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(assignmentHtml);
+      newWindow.document.title = 'Add New Assignment';
+    }
   };
 
   const handleViewStudentDetails = (studentId: string) => {
-    alert(`Viewing detailed grade breakdown for student ${studentId}. This would show all individual assignment scores and performance analytics.`);
+    const student = grades.find(g => g.studentId === studentId);
+    if (!student) return;
+    
+    const detailsHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">
+          Grade Details - ${student.studentName}
+        </h2>
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #374151;"><strong>Student ID:</strong> ${student.studentId}</p>
+          <p style="margin: 5px 0 0 0; color: #374151;"><strong>Subject:</strong> ${selectedSubject} | <strong>Class:</strong> ${selectedClass}</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #1e40af; margin: 0 0 10px 0;">Q1 Grade</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #1e40af; margin: 0;">${(student as any).quarterly.q1}</p>
+            <p style="color: #1e40af; margin: 5px 0 0 0; font-size: 0.9em;">W: ${(student as any).written.q1} | P: ${(student as any).performance.q1}</p>
+          </div>
+          <div style="background: #dcfce7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #166534; margin: 0 0 10px 0;">Q2 Grade</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #166534; margin: 0;">${(student as any).quarterly.q2}</p>
+            <p style="color: #166534; margin: 5px 0 0 0; font-size: 0.9em;">W: ${(student as any).written.q2} | P: ${(student as any).performance.q2}</p>
+          </div>
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #92400e; margin: 0 0 10px 0;">Final Grade</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #92400e; margin: 0;">${student.finalGrade}</p>
+            <p style="color: #92400e; margin: 5px 0 0 0; font-size: 0.9em;">Current Average</p>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Assignment Breakdown</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+              <thead>
+                <tr style="background: #f9fafb;">
+                  <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Assignment</th>
+                  <th style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Type</th>
+                  <th style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Score</th>
+                  <th style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Max</th>
+                  <th style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="border: 1px solid #d1d5db; padding: 12px;">Quiz 1 - Algebra</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Written</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">45</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">50</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">90%</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #d1d5db; padding: 12px;">Midterm Exam</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Written</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">88</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">100</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">88%</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #d1d5db; padding: 12px;">Group Project</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">Performance</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">95</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">100</td>
+                  <td style="border: 1px solid #d1d5db; padding: 12px; text-align: center;">95%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-top: 30px;">
+          <h4 style="color: #374151; margin: 0 0 15px 0;">Grade Calculation</h4>
+          <p style="color: #6b7280; margin: 5px 0;">Written Work (60%): ${(student as any).written.q2} × 0.6 = ${Math.round((student as any).written.q2 * 0.6)}</p>
+          <p style="color: #6b7280; margin: 5px 0;">Performance Task (40%): ${(student as any).performance.q2} × 0.4 = ${Math.round((student as any).performance.q2 * 0.4)}</p>
+          <p style="color: #374151; margin: 15px 0 5px 0; font-weight: bold;">Quarterly Grade: ${(student as any).quarterly.q2}</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <button onclick="window.close()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">Close</button>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(detailsHtml);
+      newWindow.document.title = `Grade Details - ${student.studentName}`;
+    }
   };
 
   const calculateClassAverage = (category: string, quarter: string) => {

@@ -58,16 +58,189 @@ export function TeacherReports() {
   };
 
   const handleGenerateReport = () => {
-    const reportName = reportTypes.find(r => r.id === selectedReportType)?.name;
-    alert(`Generating ${reportName} for ${selectedClass} - ${selectedPeriod}. This would create a comprehensive report with charts, statistics, and detailed analysis.`);
+    const reportType = reportTypes.find(r => r.id === selectedReportType);
+    if (!reportType) return;
+    
+    const reportHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px;">
+          <h1 style="color: #1f2937; margin: 0;">${reportType.name}</h1>
+          <p style="color: #6b7280; margin: 10px 0;">Class: ${selectedClass === 'all' ? 'All Classes' : `Grade ${selectedClass}`} | Period: ${selectedPeriod}</p>
+          <p style="color: #6b7280; margin: 5px 0;">Generated on: ${new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #1e40af; margin: 0 0 10px 0;">Class Average</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #1e40af; margin: 0;">87.5</p>
+          </div>
+          <div style="background: #dcfce7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #166534; margin: 0 0 10px 0;">Attendance Rate</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #166534; margin: 0;">94%</p>
+          </div>
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #92400e; margin: 0 0 10px 0;">Total Students</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #92400e; margin: 0;">32</p>
+          </div>
+          <div style="background: #fce7f3; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #be185d; margin: 0 0 10px 0;">At Risk</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #be185d; margin: 0;">3</p>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Grade Distribution</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold; color: #166534;">12</div>
+              <div style="color: #166534; font-size: 0.9em;">Excellent (90-100)</div>
+            </div>
+            <div style="background: #eff6ff; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold; color: #1e40af;">15</div>
+              <div style="color: #1e40af; font-size: 0.9em;">Very Good (85-89)</div>
+            </div>
+            <div style="background: #fefce8; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold; color: #ca8a04;">3</div>
+              <div style="color: #ca8a04; font-size: 0.9em;">Good (80-84)</div>
+            </div>
+            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; text-align: center;">
+              <div style="font-size: 1.5em; font-weight: bold; color: #dc2626;">2</div>
+              <div style="color: #dc2626; font-size: 0.9em;">Needs Improvement</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Top Performers</h3>
+          <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            <ol style="margin: 0; padding-left: 20px; color: #374151;">
+              <li style="margin: 8px 0;">Emma Davis - 95.2 average</li>
+              <li style="margin: 8px 0;">James Johnson - 93.8 average</li>
+              <li style="margin: 8px 0;">Lisa Garcia - 92.1 average</li>
+              <li style="margin: 8px 0;">John Smith - 90.5 average</li>
+              <li style="margin: 8px 0;">Sarah Wilson - 89.7 average</li>
+            </ol>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Recommendations</h3>
+          <div style="background: #eff6ff; padding: 20px; border-radius: 8px;">
+            <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
+              <li style="margin: 8px 0;">Continue current teaching strategies - class average is above target</li>
+              <li style="margin: 8px 0;">Provide additional support for 3 at-risk students</li>
+              <li style="margin: 8px 0;">Consider advanced activities for top performers</li>
+              <li style="margin: 8px 0;">Schedule parent conferences for students below 80%</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-top: 30px; text-align: center;">
+          <p style="color: #6b7280; margin: 0 0 15px 0; font-size: 0.9em;">Report generated by LEARNTRACK System</p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="window.print()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Print Report</button>
+            <button onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(reportHtml);
+      newWindow.document.title = `${reportType.name} - ${selectedClass}`;
+    }
   };
 
   const handleDownloadReport = (reportId: number) => {
-    alert(`Downloading report ${reportId}. This would download the selected report as a PDF file.`);
+    const report = recentReports.find(r => r.id === reportId);
+    if (!report) return;
+    
+    // Simulate PDF download
+    const pdfContent = `Report: ${report.name}\nGenerated: ${report.date}\nType: ${report.type}\nSize: ${report.size}`;
+    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${report.name.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleViewReport = (reportId: number) => {
-    alert(`Opening report ${reportId} for preview. This would display the report in a new window with options to print or share.`);
+    const report = recentReports.find(r => r.id === reportId);
+    if (!report) return;
+    
+    const reportHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px;">
+          <h1 style="color: #1f2937; margin: 0;">${report.name}</h1>
+          <p style="color: #6b7280; margin: 10px 0;">Type: ${report.type}</p>
+          <p style="color: #6b7280; margin: 5px 0;">Generated: ${new Date(report.date).toLocaleDateString()}</p>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #374151; margin: 0 0 15px 0;">Report Summary</h3>
+          <p style="color: #6b7280; line-height: 1.6;">
+            This ${report.type.toLowerCase()} report provides comprehensive insights into student performance, 
+            attendance patterns, and academic progress. The data has been analyzed to identify trends, 
+            highlight achievements, and pinpoint areas requiring attention.
+          </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; text-align: center;">
+            <h4 style="color: #1e40af; margin: 0 0 10px 0;">Students Analyzed</h4>
+            <p style="font-size: 1.8em; font-weight: bold; color: #1e40af; margin: 0;">32</p>
+          </div>
+          <div style="background: #dcfce7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h4 style="color: #166534; margin: 0 0 10px 0;">Data Points</h4>
+            <p style="font-size: 1.8em; font-weight: bold; color: #166534; margin: 0;">1,248</p>
+          </div>
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h4 style="color: #92400e; margin: 0 0 10px 0;">Time Period</h4>
+            <p style="font-size: 1.2em; font-weight: bold; color: #92400e; margin: 0;">Q2 2024</p>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Key Findings</h3>
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h4 style="color: #166534; margin: 0 0 10px 0;">✓ Positive Trends</h4>
+            <ul style="color: #166534; margin: 0; padding-left: 20px;">
+              <li>Overall class average improved by 3.2 points</li>
+              <li>Attendance rate increased to 94%</li>
+              <li>12 students achieved excellent grades</li>
+            </ul>
+          </div>
+          <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 15px 0;">
+            <h4 style="color: #dc2626; margin: 0 0 10px 0;">⚠ Areas of Concern</h4>
+            <ul style="color: #dc2626; margin: 0; padding-left: 20px;">
+              <li>3 students require immediate intervention</li>
+              <li>Math scores slightly below target</li>
+              <li>2 students with attendance issues</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-top: 30px; text-align: center;">
+          <p style="color: #6b7280; margin: 0 0 15px 0; font-size: 0.9em;">Full report contains detailed charts, individual student analysis, and actionable recommendations.</p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button onclick="alert('Downloading full report...')" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Download Full Report</button>
+            <button onclick="window.print()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Print</button>
+            <button onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(reportHtml);
+      newWindow.document.title = `${report.name} - Preview`;
+    }
   };
 
   const getStatusBadge = (status: string) => {

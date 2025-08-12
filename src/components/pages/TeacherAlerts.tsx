@@ -101,23 +101,157 @@ export function TeacherAlerts() {
   };
 
   const handleTakeAction = (alert: any) => {
-    switch (alert.type) {
-      case 'academic':
-        alert(`Taking action for academic alert: ${alert.title}. This would open intervention planning tools, allow you to schedule tutoring, or contact parents about academic concerns.`);
-        break;
-      case 'attendance':
-        alert(`Taking action for attendance alert: ${alert.title}. This would allow you to contact parents, mark excused absences, or schedule make-up work.`);
-        break;
-      case 'parent':
-        alert(`Taking action for parent request: ${alert.title}. This would open the scheduling system to arrange a parent-teacher conference.`);
-        break;
-      default:
-        alert(`Taking action for ${alert.type} alert: ${alert.title}`);
+    const actionHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #f59e0b; padding-bottom: 10px;">
+          Take Action - ${alert.title}
+        </h2>
+        <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #92400e;"><strong>Student:</strong> ${alert.student} (${alert.studentId})</p>
+          <p style="margin: 5px 0 0 0; color: #92400e;"><strong>Alert:</strong> ${alert.message}</p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <h3 style="color: #374151; margin-bottom: 15px;">Recommended Actions:</h3>
+          <div style="display: grid; gap: 15px;">
+            ${alert.type === 'academic' ? `
+            <button onclick="alert('Scheduling tutoring session for ${alert.student}')" style="background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📚 Schedule Tutoring Session
+            </button>
+            <button onclick="alert('Creating intervention plan for ${alert.student}')" style="background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📋 Create Intervention Plan
+            </button>
+            <button onclick="alert('Contacting parent about academic concerns')" style="background: #8b5cf6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📞 Contact Parent
+            </button>
+            ` : ''}
+            
+            ${alert.type === 'attendance' ? `
+            <button onclick="alert('Marking absence as excused for ${alert.student}')" style="background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              ✓ Mark as Excused Absence
+            </button>
+            <button onclick="alert('Scheduling make-up work for ${alert.student}')" style="background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📝 Schedule Make-up Work
+            </button>
+            <button onclick="alert('Contacting parent about attendance')" style="background: #f59e0b; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📞 Contact Parent
+            </button>
+            ` : ''}
+            
+            ${alert.type === 'parent' ? `
+            <button onclick="alert('Scheduling parent conference for ${alert.student}')" style="background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📅 Schedule Conference
+            </button>
+            <button onclick="alert('Sending meeting availability to parent')" style="background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📧 Send Available Times
+            </button>
+            ` : ''}
+            
+            <button onclick="alert('Adding note to student record')" style="background: #6b7280; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left;">
+              📝 Add Note to Record
+            </button>
+          </div>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Action Notes:</label>
+          <textarea rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;" placeholder="Document the action taken and any follow-up required..."></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Cancel</button>
+          <button onclick="alert('Action completed and documented!'); window.close();" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Complete Action</button>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=700,height=600,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(actionHtml);
+      newWindow.document.title = `Take Action - ${alert.student}`;
     }
   };
 
   const handleContactParent = (alert: any) => {
-    alert(`Contacting parent of ${alert.student}. This would open the communication system to send messages or schedule calls with the parent.`);
+    const contactHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #10b981; padding-bottom: 10px;">
+          Contact Parent - ${alert.student}
+        </h2>
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #166534;"><strong>Alert:</strong> ${alert.title}</p>
+          <p style="margin: 5px 0 0 0; color: #166534;"><strong>Details:</strong> ${alert.message}</p>
+        </div>
+        
+        <form style="margin: 20px 0;">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Communication Method:</label>
+            <select style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+              <option>Email</option>
+              <option>Phone Call</option>
+              <option>Text Message</option>
+              <option>Parent Portal Message</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Priority Level:</label>
+            <select style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+              <option value="high" ${alert.priority === 'high' ? 'selected' : ''}>High - Immediate attention required</option>
+              <option value="medium" ${alert.priority === 'medium' ? 'selected' : ''}>Medium - Response within 24 hours</option>
+              <option value="low" ${alert.priority === 'low' ? 'selected' : ''}>Low - Informational</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Subject:</label>
+            <input type="text" value="Regarding ${alert.student} - ${alert.title}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Message:</label>
+            <textarea rows="8" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">Dear Parent,
+
+I hope this message finds you well. I wanted to reach out regarding ${alert.student}.
+
+${alert.message}
+
+${alert.type === 'academic' ? 'I believe with some additional support, we can help improve their academic performance. I would like to discuss some strategies that might be helpful.' : ''}
+${alert.type === 'attendance' ? 'Regular attendance is crucial for academic success. Please let me know if there are any circumstances I should be aware of.' : ''}
+${alert.type === 'parent' ? 'I would be happy to schedule a meeting at your convenience to discuss this further.' : ''}
+
+Please feel free to contact me if you have any questions or concerns.
+
+Best regards,
+Ms. Johnson
+Mathematics Teacher
+SJCSI Junior High School</textarea>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; color: #374151;">
+              <input type="checkbox" style="margin-right: 8px;">
+              Request parent conference
+            </label>
+            <label style="display: flex; align-items: center; color: #374151; margin-top: 8px;">
+              <input type="checkbox" style="margin-right: 8px;">
+              Copy school counselor
+            </label>
+          </div>
+          
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Cancel</button>
+            <button type="button" onclick="alert('Message sent successfully to parent!'); window.close();" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Send Message</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=700,height=800,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(contactHtml);
+      newWindow.document.title = `Contact Parent - ${alert.student}`;
+    }
   };
 
   const getPriorityColor = (priority: string) => {

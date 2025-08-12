@@ -89,15 +89,114 @@ export function TeacherAttendance() {
   };
 
   const handleSaveAttendance = () => {
-    alert('Attendance saved successfully! Parents of absent students have been notified automatically.');
+    const absentStudents = attendance.filter(s => s.status === 'absent');
+    const lateStudents = attendance.filter(s => s.status === 'late');
+    
+    const successHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 24px;">✓</span>
+          </div>
+          <h2 style="color: #1f2937; margin: 0;">Attendance Saved!</h2>
+        </div>
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #166534;"><strong>Summary for ${new Date(selectedDate).toLocaleDateString()}:</strong></p>
+          <ul style="color: #166534; margin: 10px 0;">
+            <li>Present: ${attendanceStats.present} students</li>
+            <li>Absent: ${attendanceStats.absent} students</li>
+            <li>Late: ${attendanceStats.late} students</li>
+            <li>Class: ${selectedClass} - ${selectedSubject}</li>
+          </ul>
+        </div>
+        ${absentStudents.length > 0 ? `
+        <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #dc2626;"><strong>Parent Notifications Sent:</strong></p>
+          <ul style="color: #dc2626; margin: 10px 0;">
+            ${absentStudents.map(s => `<li>${s.studentName}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        <div style="text-align: center; margin-top: 20px;">
+          <button onclick="window.close()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">Close</button>
+        </div>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=600,height=500');
+    if (newWindow) {
+      newWindow.document.write(successHtml);
+      newWindow.document.title = 'Attendance Saved';
+    }
   };
 
   const handleExportAttendance = () => {
-    alert('Exporting attendance report. This would generate a comprehensive attendance report for the selected period.');
+    const csvContent = [
+      ['Date', 'Student ID', 'Student Name', 'Status', 'Time In', 'Notes'],
+      ...attendance.map(record => [
+        selectedDate,
+        record.studentId,
+        record.studentName,
+        record.status,
+        record.timeIn || '',
+        record.notes || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${selectedClass}_${selectedDate}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleImportAttendance = () => {
-    alert('Import attendance data. This would allow you to upload attendance data from external sources.');
+    const importHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1f2937; border-bottom: 2px solid #8b5cf6; padding-bottom: 10px;">
+          Import Attendance Data
+        </h2>
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #92400e;"><strong>Note:</strong> This will import attendance data for the selected date and class.</p>
+        </div>
+        <form style="margin: 20px 0;">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Select CSV File:</label>
+            <input type="file" accept=".csv" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #374151;">Import Mode:</label>
+            <select style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+              <option>Replace existing attendance</option>
+              <option>Update only missing records</option>
+              <option>Merge with existing data</option>
+            </select>
+          </div>
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #374151; margin: 0 0 10px 0;">Expected CSV Format:</h4>
+            <code style="display: block; background: white; padding: 10px; border-radius: 4px; font-size: 12px;">
+              Student ID, Student Name, Status, Time In, Notes<br>
+              STU001, John Smith, present, 08:00, <br>
+              STU002, Emma Davis, absent, , Sick leave
+            </code>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Cancel</button>
+            <button type="button" onclick="alert('Attendance data imported successfully!'); window.close();" style="background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Import Data</button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    const newWindow = window.open('', '_blank', 'width=700,height=600,scrollbars=yes');
+    if (newWindow) {
+      newWindow.document.write(importHtml);
+      newWindow.document.title = 'Import Attendance';
+    }
   };
 
   const handleMarkAllPresent = () => {

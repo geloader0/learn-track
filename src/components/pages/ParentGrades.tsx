@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { BookOpen, Download, Filter, Search, Eye } from 'lucide-react';
+import { BookOpen, Download, Filter, Search, Eye, TrendingUp, TrendingDown, Award } from 'lucide-react';
 
-export function StudentGrades() {
+export function ParentGrades() {
   const [selectedQuarter, setSelectedQuarter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -14,7 +14,8 @@ export function StudentGrades() {
       q3: { written: 85, performance: 88, quarterly: 87 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 90,
-      status: 'Excellent'
+      status: 'Excellent',
+      trend: 'up'
     },
     {
       subject: 'English',
@@ -24,7 +25,8 @@ export function StudentGrades() {
       q3: { written: 82, performance: 85, quarterly: 84 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 86,
-      status: 'Good'
+      status: 'Good',
+      trend: 'stable'
     },
     {
       subject: 'Science',
@@ -34,7 +36,8 @@ export function StudentGrades() {
       q3: { written: 88, performance: 90, quarterly: 89 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 92,
-      status: 'Excellent'
+      status: 'Excellent',
+      trend: 'up'
     },
     {
       subject: 'Filipino',
@@ -44,7 +47,8 @@ export function StudentGrades() {
       q3: { written: 80, performance: 82, quarterly: 81 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 84,
-      status: 'Good'
+      status: 'Good',
+      trend: 'up'
     },
     {
       subject: 'Social Studies',
@@ -54,7 +58,8 @@ export function StudentGrades() {
       q3: { written: 85, performance: 87, quarterly: 86 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 88,
-      status: 'Good'
+      status: 'Good',
+      trend: 'stable'
     },
     {
       subject: 'Physical Education',
@@ -64,7 +69,8 @@ export function StudentGrades() {
       q3: { written: 94, performance: 96, quarterly: 95 },
       q4: { written: 0, performance: 0, quarterly: 0 },
       final: 96,
-      status: 'Excellent'
+      status: 'Excellent',
+      trend: 'stable'
     }
   ];
 
@@ -74,7 +80,28 @@ export function StudentGrades() {
   );
 
   const handleDownloadReport = () => {
-    alert('Grade report download initiated. This would generate a PDF report.');
+    const csvContent = [
+      ['Subject', 'Teacher', 'Q1', 'Q2', 'Q3', 'Final Grade', 'Status'],
+      ...filteredGrades.map(grade => [
+        grade.subject,
+        grade.teacher,
+        grade.q1.quarterly,
+        grade.q2.quarterly,
+        grade.q3.quarterly || 'N/A',
+        grade.final,
+        grade.status
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `john_smith_grades_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleViewDetails = (subject: string) => {
@@ -82,60 +109,110 @@ export function StudentGrades() {
     if (!grade) return;
     
     const detailsHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">
-          ${subject} - Detailed Grade Breakdown
+          ${subject} - Detailed Grade Report
         </h2>
-        <div style="margin: 20px 0;">
-          <h3 style="color: #374151;">Quarter Grades:</h3>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0;">
-            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
-              <strong>1st Quarter:</strong> ${grade.q1.quarterly}<br>
-              <small>Written: ${grade.q1.written} | Performance: ${grade.q1.performance}</small>
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #374151;"><strong>Student:</strong> John Smith</p>
+          <p style="margin: 5px 0 0 0; color: #374151;"><strong>Teacher:</strong> ${grade.teacher}</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #1e40af; margin: 0 0 10px 0;">1st Quarter</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #1e40af; margin: 0;">${grade.q1.quarterly}</p>
+            <p style="color: #1e40af; margin: 5px 0 0 0; font-size: 0.9em;">W: ${grade.q1.written} | P: ${grade.q1.performance}</p>
+          </div>
+          <div style="background: #dcfce7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #166534; margin: 0 0 10px 0;">2nd Quarter</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #166534; margin: 0;">${grade.q2.quarterly}</p>
+            <p style="color: #166534; margin: 5px 0 0 0; font-size: 0.9em;">W: ${grade.q2.written} | P: ${grade.q2.performance}</p>
+          </div>
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #92400e; margin: 0 0 10px 0;">3rd Quarter</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #92400e; margin: 0;">${grade.q3.quarterly || '--'}</p>
+            <p style="color: #92400e; margin: 5px 0 0 0; font-size: 0.9em;">W: ${grade.q3.written || '--'} | P: ${grade.q3.performance || '--'}</p>
+          </div>
+          <div style="background: #fce7f3; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3 style="color: #be185d; margin: 0 0 10px 0;">Final Grade</h3>
+            <p style="font-size: 2em; font-weight: bold; color: #be185d; margin: 0;">${grade.final}</p>
+            <p style="color: #be185d; margin: 5px 0 0 0; font-size: 0.9em;">${grade.status}</p>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Performance Analysis</h3>
+          <div style="background: ${grade.trend === 'up' ? '#f0fdf4' : grade.trend === 'down' ? '#fef2f2' : '#f3f4f6'}; padding: 20px; border-radius: 8px;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+              <span style="font-size: 1.5em; margin-right: 10px;">
+                ${grade.trend === 'up' ? '📈' : grade.trend === 'down' ? '📉' : '➡️'}
+              </span>
+              <h4 style="margin: 0; color: ${grade.trend === 'up' ? '#166534' : grade.trend === 'down' ? '#dc2626' : '#374151'};">
+                ${grade.trend === 'up' ? 'Improving Performance' : grade.trend === 'down' ? 'Declining Performance' : 'Stable Performance'}
+              </h4>
             </div>
-            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
-              <strong>2nd Quarter:</strong> ${grade.q2.quarterly}<br>
-              <small>Written: ${grade.q2.written} | Performance: ${grade.q2.performance}</small>
-            </div>
-            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
-              <strong>3rd Quarter:</strong> ${grade.q3.quarterly || 'Not yet graded'}<br>
-              <small>Written: ${grade.q3.written || '--'} | Performance: ${grade.q3.performance || '--'}</small>
-            </div>
-            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
-              <strong>4th Quarter:</strong> ${grade.q4.quarterly || 'Not yet graded'}<br>
-              <small>Written: ${grade.q4.written || '--'} | Performance: ${grade.q4.performance || '--'}</small>
+            <p style="color: ${grade.trend === 'up' ? '#166534' : grade.trend === 'down' ? '#dc2626' : '#374151'}; margin: 0;">
+              ${grade.trend === 'up' ? 'John is showing consistent improvement in this subject. Keep up the good work!' : 
+                grade.trend === 'down' ? 'There has been a slight decline in performance. Consider additional support or study time.' : 
+                'John is maintaining steady performance in this subject.'}
+            </p>
+          </div>
+        </div>
+        
+        <div style="margin: 30px 0;">
+          <h3 style="color: #374151; border-bottom: 1px solid #d1d5db; padding-bottom: 10px;">Recent Assignments</h3>
+          <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            <div style="display: grid; gap: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 6px;">
+                <span style="color: #374151;">Quiz 2 - Geometry</span>
+                <span style="color: #10b981; font-weight: bold;">92/100</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 6px;">
+                <span style="color: #374151;">Project Presentation</span>
+                <span style="color: #10b981; font-weight: bold;">95/100</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 6px;">
+                <span style="color: #374151;">Midterm Exam</span>
+                <span style="color: #3b82f6; font-weight: bold;">88/100</span>
+              </div>
             </div>
           </div>
-          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1e40af; margin: 0 0 10px 0;">Final Grade: ${grade.final}</h3>
-            <p style="margin: 0; color: #1e40af;">Status: ${grade.status}</p>
-          </div>
-          <div style="margin: 20px 0;">
-            <h4 style="color: #374151;">Recent Assignments:</h4>
-            <ul style="list-style-type: none; padding: 0;">
-              <li style="background: #f9fafb; padding: 10px; margin: 5px 0; border-left: 4px solid #10b981;">
-                Quiz 1 - Algebra: 92/100
-              </li>
-              <li style="background: #f9fafb; padding: 10px; margin: 5px 0; border-left: 4px solid #3b82f6;">
-                Midterm Exam: 88/100
-              </li>
-              <li style="background: #f9fafb; padding: 10px; margin: 5px 0; border-left: 4px solid #f59e0b;">
-                Project Presentation: 95/100
-              </li>
-            </ul>
-          </div>
-          <div style="margin: 20px 0;">
-            <h4 style="color: #374151;">Teacher: ${grade.teacher}</h4>
-            <p style="color: #6b7280;">Contact your teacher for additional support or clarification on any assignments.</p>
-          </div>
+        </div>
+        
+        <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 30px 0;">
+          <h4 style="color: #1e40af; margin: 0 0 10px 0;">Teacher's Comments</h4>
+          <p style="color: #1e40af; margin: 0; font-style: italic;">
+            "John has shown excellent progress this quarter. His problem-solving skills have improved significantly, 
+            and he actively participates in class discussions. Keep up the great work!"
+          </p>
+          <p style="color: #1e40af; margin: 10px 0 0 0; font-size: 0.9em;">
+            - ${grade.teacher}
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <button onclick="window.print()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px;">Print Report</button>
+          <button onclick="window.close()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">Close</button>
         </div>
       </div>
     `;
     
-    const newWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+    const newWindow = window.open('', '_blank', 'width=800,height=700,scrollbars=yes');
     if (newWindow) {
       newWindow.document.write(detailsHtml);
       newWindow.document.title = `${subject} - Grade Details`;
+    }
+  };
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'up':
+        return <TrendingUp className="h-4 w-4 text-green-500" />;
+      case 'down':
+        return <TrendingDown className="h-4 w-4 text-red-500" />;
+      default:
+        return <div className="h-4 w-4 bg-blue-500 rounded-full"></div>;
     }
   };
 
@@ -143,8 +220,8 @@ export function StudentGrades() {
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Grades</h1>
-          <p className="text-gray-600">Track your academic performance across all subjects.</p>
+          <h1 className="text-2xl font-bold text-gray-900">John's Grades</h1>
+          <p className="text-gray-600">Track your child's academic performance across all subjects.</p>
         </div>
         <button
           onClick={handleDownloadReport}
@@ -153,6 +230,16 @@ export function StudentGrades() {
           <Download className="h-4 w-4" />
           <span>Download Report</span>
         </button>
+      </div>
+
+      {/* Student Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-lg font-medium text-blue-900 mb-2">Student Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-blue-700">
+          <p><strong>Name:</strong> John Smith</p>
+          <p><strong>Grade & Section:</strong> Grade 8-A</p>
+          <p><strong>Student ID:</strong> STU001</p>
+        </div>
       </div>
 
       {/* Filters */}
@@ -262,13 +349,16 @@ export function StudentGrades() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {grade.teacher}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                    {grade.q1.quarterly}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900">{grade.q1.quarterly}</span>
+                      {getTrendIcon(grade.trend)}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {grade.q2.quarterly}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {grade.q3.quarterly || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">

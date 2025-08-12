@@ -4,6 +4,10 @@ import { NavigationItem } from '../Dashboard';
 import { StatCard } from '../common/StatCard';
 import { GradeChart } from '../charts/GradeChart';
 import { AttendanceChart } from '../charts/AttendanceChart';
+import { ParentGrades } from '../pages/ParentGrades';
+import { ParentAttendance } from '../pages/ParentAttendance';
+import { ParentPerformance } from '../pages/ParentPerformance';
+import { ParentNotifications } from '../pages/ParentNotifications';
 
 interface ParentDashboardProps {
   activeTab: NavigationItem;
@@ -86,6 +90,22 @@ export function ParentDashboard({ activeTab }: ParentDashboardProps) {
         </div>
       </div>
     );
+  }
+
+  if (activeTab === 'grades') {
+    return <ParentGrades />;
+  }
+
+  if (activeTab === 'attendance') {
+    return <ParentAttendance />;
+  }
+
+  if (activeTab === 'performance') {
+    return <ParentPerformance />;
+  }
+
+  if (activeTab === 'alerts') {
+    return <ParentNotifications />;
   }
 
   return (
