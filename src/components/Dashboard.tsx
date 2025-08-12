@@ -17,7 +17,8 @@ export type NavigationItem =
   | 'reports'
   | 'alerts'
   | 'settings'
-  | 'users';
+  | 'users'
+  | 'teachers';
 
 export function Dashboard() {
   const { user } = useUser();

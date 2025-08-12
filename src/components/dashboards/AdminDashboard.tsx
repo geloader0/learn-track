@@ -4,6 +4,11 @@ import { NavigationItem } from '../Dashboard';
 import { StatCard } from '../common/StatCard';
 import { SystemPerformanceChart } from '../charts/SystemPerformanceChart';
 import { AdminUserManagement } from '../pages/AdminUserManagement';
+import { AdminStudents } from '../pages/AdminStudents';
+import { AdminSystemReports } from '../pages/AdminSystemReports';
+import { AdminAnalytics } from '../pages/AdminAnalytics';
+import { AdminSettings } from '../pages/AdminSettings';
+import { AdminTeachers } from '../pages/AdminTeachers';
 
 interface AdminDashboardProps {
   activeTab: NavigationItem;
@@ -135,6 +140,26 @@ export function AdminDashboard({ activeTab }: AdminDashboardProps) {
 
   if (activeTab === 'users') {
     return <AdminUserManagement />;
+  }
+
+  if (activeTab === 'students') {
+    return <AdminStudents />;
+  }
+
+  if (activeTab === 'reports') {
+    return <AdminSystemReports />;
+  }
+
+  if (activeTab === 'performance') {
+    return <AdminAnalytics />;
+  }
+
+  if (activeTab === 'settings') {
+    return <AdminSettings />;
+  }
+
+  if (activeTab === 'teachers') {
+    return <AdminTeachers />;
   }
 
   return (

@@ -45,6 +45,7 @@ export function Sidebar({ isOpen, setIsOpen, activeTab, setActiveTab, userRole }
         return [
           ...commonItems,
           { id: 'users' as NavigationItem, label: 'User Management', icon: Users },
+          { id: 'teachers' as NavigationItem, label: 'Teachers', icon: GraduationCap },
           { id: 'students' as NavigationItem, label: 'Students', icon: GraduationCap },
           { id: 'reports' as NavigationItem, label: 'System Reports', icon: FileText },
           { id: 'performance' as NavigationItem, label: 'Analytics', icon: BarChart3 },
